@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Bus Route Optimiser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+    <!-- ==================== HAMBURGER ==================== -->
+    <button class="hamburger" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>🚌 Campus Bus</h2>
+            <p>Route Optimiser</p>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" onclick="navigateTo('home')">
+                <i class="fas fa-home"></i> Home
+            </li>
+            <li onclick="navigateTo('routes')">
+                <i class="fas fa-route"></i> Bus Routes
+            </li>
+            <li onclick="navigateTo('search')">
+                <i class="fas fa-search"></i> Search Route
+            </li>
+            <li onclick="navigateTo('shortest')">
+                <i class="fas fa-bolt"></i> Shortest Path
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="main-content">
+
+        <!-- ===== HOME ===== -->
+        <div class="page active" id="page-home">
+            <div class="main-title">
+                <h1>🚌 Campus Bus Route Optimiser</h1>
+                <p>Find the best bus routes across campus</p>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box">
+                    <h2 id="totalRoutes">-</h2>
+                    <p>🚌 Total Routes</p>
+                </div>
+                <div class="stat-box">
+                    <h2 id="avgDistance">-</h2>
+                    <p>📏 Avg Distance</p>
+                </div>
+                <div class="stat-box">
+                    <h2 id="avgDuration">-</h2>
+                    <p>⏱️ Avg Duration</p>
+                </div>
+                <div class="stat-box">
+                    <h2 id="totalStops">-</h2>
+                    <p>📍 Total Stops</p>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="icon">🗺️</span>
+                    <h3>View Routes</h3>
+                    <p>Browse all available bus routes with complete details</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🔍</span>
+                    <h3>Search Routes</h3>
+                    <p>Find routes by source and destination easily</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">⚡</span>
+                    <h3>Optimize Path</h3>
+                    <p>Get the shortest and most efficient route</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2026 Campus Bus Route Optimiser | Built with ❤️</p>
+            </div>
+        </div>
+
+        <!-- ===== BUS ROUTES ===== -->
+        <div class="page" id="page-routes">
+            <div class="main-title">
+                <h1>🚌 Available Bus Routes</h1>
+                <p>View all campus bus routes</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:rgba(255,255,255,0.85);padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1b5e20;" id="routeCount">-</div>
+                    <div style="color:#666;">Total Routes</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.85);padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1b5e20;" id="routeAvgDist">-</div>
+                    <div style="color:#666;">Avg Distance</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.85);padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1b5e20;" id="routeAvgDur">-</div>
+                    <div style="color:#666;">Avg Duration</div>
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.85);padding:1rem;border-radius:12px;margin-bottom:1.5rem;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div>
+                        <label style="font-weight:600;color:#333;">🔍 Search</label>
+                        <input type="text" id="routeSearch" placeholder="Route name..." style="width:100%;padding:0.6rem 1rem;border:1px solid rgba(0,0,0,0.1);border-radius:10px;background:rgba(255,255,255,0.8);" oninput="loadRoutes()">
+                    </div>
+                    <div>
+                        <label style="font-weight:600;color:#333;">📍 Source</label>
+                        <select id="sourceFilter" style="width:100%;padding:0.6rem 1rem;border:1px solid rgba(0,0,0,0.1);border-radius:10px;background:rgba(255,255,255,0.8);" onchange="loadRoutes()">
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="routesList"><div class="loading">Loading...</div></div>
+        </div>
+
+        <!-- ===== SEARCH ROUTE ===== -->
+        <div class="page" id="page-search">
+            <div class="main-title">
+                <h1>🔍 Search Bus Route</h1>
+                <p>Find routes by source and destination</p>
+            </div>
+
+            <div class="search-box">
+                <div class="row">
+                    <div>
+                        <label>📍 From</label>
+                        <select id="searchSource">
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>🏁 To</label>
+                        <select id="searchDestination">
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <button class="btn" onclick="searchRoutes()">
+                    <i class="fas fa-search"></i> Search Routes
+                </button>
+            </div>
+
+            <div id="searchResults"><div class="loading">Search to see results</div></div>
+        </div>
+
+        <!-- ===== SHORTEST PATH ===== -->
+        <div class="page" id="page-shortest">
+            <div class="main-title">
+                <h1>⚡ Find Shortest Path</h1>
+                <p>Get the most efficient route between locations</p>
+            </div>
+
+            <div class="search-box">
+                <div class="row">
+                    <div>
+                        <label>📍 From</label>
+                        <select id="shortestSource"></select>
+                    </div>
+                    <div>
+                        <label>🏁 To</label>
+                        <select id="shortestDestination"></select>
+                    </div>
+                </div>
+                <br />
+                <button class="btn" onclick="findShortest()">
+                    <i class="fas fa-bolt"></i> Find Shortest Path
+                </button>
+            </div>
+
+            <div id="shortestResult"><div class="loading">Select locations and find shortest path</div></div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
